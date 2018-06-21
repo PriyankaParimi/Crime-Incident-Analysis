@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <title>Incident Analysis</title>
+   <link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+  <script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+</head>
+<body>
+<nav class="navbar navbar-inverse">
+  <div class="container-fluid">
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#myNavbar">
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+     
+    </div>
+    <div class="collapse navbar-collapse" id="myNavbar">
+      <ul class="nav navbar-nav">
+       <li> <a href="home.html" class="color-me" >Home</a></li>
+        <li><a href="home.html" class="color-me">Datasets</a></li>
+        <li><a href="bargraph.html" class="color-me">Bargraph</a></li>
+        <li><a href="piechart.html" class="color-me">PieChart</a></li>
+        <li><a href="stepped.html" class="color-me">SteppedArea</a></li>
+        <li><a href="columngraph.html" class="color-me">ColumnGraph</a></li>
+        <li><a href="geograph.html" class="color-me">GeoGraph</a></li>
+       </ul>
+      </div>
+  </div>
+</nav>
+</body>
+</html>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+  <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
+ 
+  <script type="text/javascript" src="https://www.google.com/jsapi?autoload={'modules':[{'name':'visualization',
+              'version':'1',
+              'packages':['bar']
+            }]
+          }"></script>
+  <script src="http://ajax.googleapis.com/ajax/libs/jquery/1/jquery.min.js"></script>
+
+  
+
+  </head>
+  <body>
+      
+      	  <div id='pie_canvas' style="width: 700px; height: 500px;"></div>
+	    	 
+
+  </body>
+
+  <script type="text/javascript">
+  var url = 'http://localhost:3030/myDataset/query';
+  var query = 'SELECT ?year (count(distinct ?s) as ?responsecount) WHERE {  ?s <https://data.seattle.gov/resource/policereport/year> ?year.} GROUP BY ?year';
+
+  $.ajax({
+					async: false,
+					global: false,
+					url: encodeURI(url),
+					type: 'POST',
+					data: { query : query },
+					contentType: 'application/x-www-form-urlencoded; charset=UTF-8',
+					success: function (data) {
+						
+						drawChart(data);
+					},
+					error: function (data) {
+						console.log(JSON.stringify(data));
+					}
+				});
+
+  function drawChart(data) {
+	 // create new data 
+     	var tabledata = new google.visualization.DataTable();
+		var pieData = new google.visualization.DataTable();
+    	tabledata.addColumn('string', 'year');
+     	tabledata.addColumn('number', 'Responsecount');
+      	
+		
+      	
+		
+		  var bindings = data.results.bindings; 
+		  
+	for (var i in bindings) {
+
+    var topicData = data.results.bindings[i];
+
+    
+	var topic = topicData.year.value;
+	var dv = parseInt(topicData.responsecount.value);
+	
+	console.log(topic, dv);
+	
+	var all = [topic, dv];
+	tabledata.addRow(all);
+}		
+
+
+	var options = {
+            title: 'Year wise incident report distribution',
+            bars: 'verticle'
+        };
+	
+	var chart=new google.charts.Bar(document.getElementById('pie_canvas'));
+	chart.draw(tabledata,google.charts.Bar.convertOptions(options));
+	
+	
+}
+    </script>
+</html>

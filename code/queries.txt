@@ -1,0 +1,33 @@
+q1)
+ SELECT ?latitude ?longitude  ?offense WHERE{  ?subject <https://data.seattle.gov/resource/policereport/summarized_offense_description> ?offense;             <https://data.seattle.gov/resource/policereport/latitude> ?latitude;            <https://data.seattle.gov/resource/policereport/longitude> ?longitude; }
+
+This query is used to retrive the type and location of the incidents reported in the Seattle area. 
+
+
+q2)
+SELECT ?year (count(distinct ?s) as ?responsecount) WHERE {  ?s <https://data.seattle.gov/resource/policereport/year> ?year.} GROUP BY ?year
+
+This query retrives the incidents responded by the 911 which are grouped year wise.
+
+
+
+q3)
+SELECT ?sector  (COUNT(?subject) AS ?count) WHERE {  ?subject <https://data.seattle.gov/resource/policereport/district_sector> ?sector;  } Group BY ?sector
+
+This query is used to retrive incident reports in a sector.
+
+q4)
+SELECT ?sector  (COUNT(?subject) AS ?count) WHERE {  ?subject <https://data.seattle.gov/resource/_3k2p-39jp/district_sector> ?sector;  } Group BY ?sector
+
+This query is used to retrive responded incidents in a given sector.
+
+q5)
+SELECT ?district (count(distinct ?s) as ?responsecount) (count(distinct ?s1) as ?reportcount)WHERE {?s <https://data.seattle.gov/resource/policereport/district_sector> ?district.?s1 <https://data.seattle.gov/resource/_3k2p-39jp/district_sector> ?district}GROUP BY ?district
+
+This query gives us the number of incidents reported and responded in different sectors.
+
+
+q7)
+SELECT ?offence  (COUNT(DISTINCT ?subject1)AS ?reports) (COUNT(DISTINCT ?subject2)AS ?resolved){  	    ?subject1 <https://data.seattle.gov/resource/policereport/offense_type> ?offence.          ?subject2 <https://data.seattle.gov/resource/_3k2p-39jp/event_clearance_subgroup> ?obj1.               filter( regex(str(?offence), ?obj1 )) } Group BY ?offence
+
+This query gives us the number of incidents reported and number of incidents resolved for a given offence type.

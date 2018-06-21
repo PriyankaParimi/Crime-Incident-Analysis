@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <title>Incident Analysis</title>
+   <link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+  <script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+</head>
+<body>
+<nav class="navbar navbar-inverse">
+  <div class="container-fluid">
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#myNavbar">
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+     
+    </div>
+    <div class="collapse navbar-collapse" id="myNavbar">
+      <ul class="nav navbar-nav">
+       <li> <a href="home.html" class="color-me" >Home</a></li>
+        <li><a href="home.html" class="color-me">Datasets</a></li>
+        <li><a href="bargraph.html" class="color-me">Bargraph</a></li>
+        <li><a href="piechart.html" class="color-me">PieChart</a></li>
+        <li><a href="stepped.html" class="color-me">SteppedArea</a></li>
+        <li><a href="columngraph.html" class="color-me">ColumnGraph</a></li>
+        <li><a href="geograph.html" class="color-me">GeoGraph</a></li>
+       </ul>
+      </div>
+  </div>
+</nav>
+</body>
+</html>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+  	<title>Type of incidents</title> 
+
+		  <script type="text/javascript"
+          src="https://www.google.com/jsapi?autoload={
+            'modules':[{
+              'name':'visualization',
+              'version':'1',
+              'packages':['map'],
+              'mapsApiKey': 'AIzaSyB2l6wlu1QmgCmtFq9BGafGT1Tqyx1yZYg
+'
+            }]
+          }"></script>
+	<script src="http://ajax.googleapis.com/ajax/libs/jquery/1/jquery.min.js"></script>
+	
+    <!--   customize function -->
+    
+
+  </head>
+  <body><font face="calibri"> 
+     
+	  
+	  <div id="barchart_material" style="width: 1200px; height: 600px;"></div>
+	    	 
+   </font>
+  </body>
+
+  <script type="text/javascript">
+    
+      
+
+      
+		var url = 'http://localhost:3030/myDataset/query';
+	var query = 'SELECT ?latitude ?longitude  ?offense WHERE{  ?subject <https://data.seattle.gov/resource/policereport/summarized_offense_description> ?offense;             <https://data.seattle.gov/resource/policereport/latitude> ?latitude;            <https://data.seattle.gov/resource/policereport/longitude> ?longitude; }';
+	//AJAX code
+		 $.ajax({
+					async: false,
+					global: false,
+					url: encodeURI(url),
+					type: 'POST',
+					data: { query : query },
+					contentType: 'application/x-www-form-urlencoded; charset=UTF-8',
+					success: function (data) {
+						
+						drawChart(data);
+					},
+					error: function (data) {
+						console.log(JSON.stringify(data));
+					}
+				});
+		
+      	
+      	
+     function drawChart(data) {
+	 // create new data 
+     	var table_data1 = new google.visualization.DataTable();
+		
+      	table_data1.addColumn('number', 'latitude');
+		table_data1.addColumn('number', 'longitude');
+		table_data1.addColumn('string','offense');
+      	
+		var bindings = data.results.bindings; 
+		var high_conf=0;
+
+	for (var i in bindings) {
+
+    var crimeData = data.results.bindings[i];
+
+    
+		
+	var  rData = parseFloat(crimeData.latitude.value);
+	
+	var hData = parseFloat(crimeData.longitude.value);
+	var mData=  crimeData.offense.value;
+	
+	
+	console.log(rData, hData,mData);
+	
+	
+	var all = [rData,hData,mData];
+	table_data1.addRow(all);
+}		
+
+	
+        
+	//Drawing a BarChart
+	var barOptions ={
+        mapType: 'normal',
+        zoomLevel: 12,
+        showTooltip: true,
+        showInfoWindow: true,
+        useMapTypeControl: true,
+        enableScrollWheel: true,
+        
+        maps: {
+          // Your custom mapTypeId holding custom map styles.
+          styledMap: {
+            name: 'Styled Map', // This name will be displayed in the map type control.
+            styles: [
+              {featureType: 'poi.attraction',
+               stylers: [{color: '#fce8b2'}]
+              },
+              {featureType: 'road.highway',
+               stylers: [{hue: '#0277bd'}, {saturation: -50}]
+              },
+              {featureType: 'road.highway',
+               elementType: 'labels.icon',
+               stylers: [{hue: '#000'}, {saturation: 100}, {lightness: 50}]
+              },
+              {featureType: 'landscape',
+               stylers: [{hue: '#259b24'}, {saturation: 10}, {lightness: -22}]
+              }
+        ]}}
+      };
+
+		var barChart = new google.visualization.Map(document.getElementById('barchart_material'));
+
+        barChart.draw(table_data1, barOptions);
+		
+}
+    </script>
+</html>
+
+  

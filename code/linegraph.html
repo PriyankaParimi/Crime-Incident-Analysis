@@ -1,0 +1,82 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+  <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
+ 
+  <script type="text/javascript" src="https://www.google.com/jsapi?autoload={'modules':[{'name':'visualization',
+              'version':'1',
+              'packages':['bar']
+            }]
+          }"></script>
+  <script src="http://ajax.googleapis.com/ajax/libs/jquery/1/jquery.min.js"></script>
+
+  
+
+  </head>
+  <body>
+      
+      	  <div id='pie_canvas' style="width: 700px; height: 500px;"></div>
+	    	  <p align="center"><h2><a href= "Home.html">Home</a> </h2></p>
+
+  </body>
+
+  <script type="text/javascript">
+  var url = 'http://localhost:3030/myDataset/query';
+  var query = 'SELECT ?year (count(distinct ?s) as ?responsecount) WHERE {  ?s <https://data.seattle.gov/resource/policereport/year> ?year.} GROUP BY ?year';
+
+  $.ajax({
+					async: false,
+					global: false,
+					url: encodeURI(url),
+					type: 'POST',
+					data: { query : query },
+					contentType: 'application/x-www-form-urlencoded; charset=UTF-8',
+					success: function (data) {
+						
+						drawChart(data);
+					},
+					error: function (data) {
+						console.log(JSON.stringify(data));
+					}
+				});
+
+  function drawChart(data) {
+	 // create new data 
+     	var tabledata = new google.visualization.DataTable();
+		var pieData = new google.visualization.DataTable();
+    	tabledata.addColumn('string', 'year');
+     	tabledata.addColumn('number', 'Responsecount');
+      	
+		
+      	
+		
+		  var bindings = data.results.bindings; 
+		  
+	for (var i in bindings) {
+
+    var topicData = data.results.bindings[i];
+
+    
+	var topic = topicData.year.value;
+	var dv = parseInt(topicData.responsecount.value);
+	
+	console.log(topic, dv);
+	
+	var all = [topic, dv];
+	tabledata.addRow(all);
+}		
+
+
+	var options = {
+            title: 'Year wise incident response distribution',
+            bars: 'verticle'
+        };
+	
+	var chart=new google.charts.Bar(document.getElementById('pie_canvas'));
+	chart.draw(tabledata,google.charts.Bar.convertOptions(options));
+	
+	
+}
+    </script>
+</html>
